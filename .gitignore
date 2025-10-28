@@ -1,0 +1,22 @@
+# ROS2 build directories
+**/build/
+**/install/
+**/log/
+
+# Python cache
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+**/venv/
+**/.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
