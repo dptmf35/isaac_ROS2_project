@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="$(arg name)">
+  <xacro:macro name="ur3_suction_srdf" params="name prefix">
+
+    <!-- ====== Planning Groups ====== -->
+    <!-- Arm: 6-DOF UR3e (tip = suction_tcp for gripper-aware planning) -->
+    <group name="${prefix}${name}_manipulator">
+      <chain base_link="${prefix}base_link" tip_link="${prefix}suction_tcp"/>
+    </group>
+
+    <!-- ====== Named States ====== -->
+    <group_state name="${prefix}home" group="${prefix}${name}_manipulator">
+      <joint name="${prefix}elbow_joint"         value="0"/>
+      <joint name="${prefix}shoulder_lift_joint" value="-1.5707"/>
+      <joint name="${prefix}shoulder_pan_joint"  value="0"/>
+      <joint name="${prefix}wrist_1_joint"       value="0"/>
+      <joint name="${prefix}wrist_2_joint"       value="0"/>
+      <joint name="${prefix}wrist_3_joint"       value="0"/>
+    </group_state>
+
+    <group_state name="${prefix}up" group="${prefix}${name}_manipulator">
+      <joint name="${prefix}elbow_joint"         value="0"/>
+      <joint name="${prefix}shoulder_lift_joint" value="-1.5707"/>
+      <joint name="${prefix}shoulder_pan_joint"  value="0"/>
+      <joint name="${prefix}wrist_1_joint"       value="-1.5707"/>
+      <joint name="${prefix}wrist_2_joint"       value="0"/>
+      <joint name="${prefix}wrist_3_joint"       value="0"/>
+    </group_state>
+
+    <!-- SurfaceGripper: no moveable joints, no separate end-effector group needed -->
+
+    <!-- ====== Virtual Joint ====== -->
+    <virtual_joint name="world_joint" type="fixed"
+                   parent_frame="world" child_link="${prefix}base_link"/>
+
+    <!-- ====== Disable Collisions (arm links) ====== -->
+    <disable_collisions link1="${prefix}base_link_inertia"  link2="${prefix}shoulder_link"   reason="Adjacent"/>
+    <disable_collisions link1="${prefix}base_link_inertia"  link2="${prefix}upper_arm_link"  reason="Never"/>
+    <disable_collisions link1="${prefix}base_link_inertia"  link2="${prefix}wrist_1_link"    reason="Never"/>
+    <disable_collisions link1="${prefix}base_link_inertia"  link2="${prefix}wrist_2_link"    reason="Never"/>
+    <disable_collisions link1="${prefix}forearm_link"       link2="${prefix}upper_arm_link"  reason="Adjacent"/>
+    <disable_collisions link1="${prefix}forearm_link"       link2="${prefix}wrist_1_link"    reason="Adjacent"/>
+    <disable_collisions link1="${prefix}shoulder_link"      link2="${prefix}upper_arm_link"  reason="Adjacent"/>
+    <disable_collisions link1="${prefix}shoulder_link"      link2="${prefix}wrist_1_link"    reason="Never"/>
+    <disable_collisions link1="${prefix}shoulder_link"      link2="${prefix}wrist_2_link"    reason="Never"/>
+    <disable_collisions link1="${prefix}wrist_1_link"       link2="${prefix}wrist_2_link"    reason="Adjacent"/>
+    <disable_collisions link1="${prefix}wrist_1_link"       link2="${prefix}wrist_3_link"    reason="Never"/>
+    <disable_collisions link1="${prefix}wrist_2_link"       link2="${prefix}wrist_3_link"    reason="Adjacent"/>
+
+  </xacro:macro>
+</robot>

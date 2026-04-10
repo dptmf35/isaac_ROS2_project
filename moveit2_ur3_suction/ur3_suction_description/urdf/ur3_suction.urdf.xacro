@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="$(arg name)">
+
+  <!-- ===================== args ===================== -->
+  <xacro:arg name="name"     default="ur_manipulator"/>
+  <xacro:arg name="ur_type"  default="ur3"/>
+  <xacro:arg name="tf_prefix" default=""/>
+
+  <xacro:arg name="joint_limit_params"
+    default="$(find ur_description)/config/$(arg ur_type)/joint_limits.yaml"/>
+  <xacro:arg name="kinematics_params"
+    default="$(find ur_description)/config/$(arg ur_type)/default_kinematics.yaml"/>
+  <xacro:arg name="physical_params"
+    default="$(find ur_description)/config/$(arg ur_type)/physical_parameters.yaml"/>
+  <xacro:arg name="visual_params"
+    default="$(find ur_description)/config/$(arg ur_type)/visual_parameters.yaml"/>
+
+  <xacro:arg name="safety_limits"     default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+
+  <!-- Isaac Sim topic_based_ros2_control topics -->
+  <xacro:arg name="isaac_joint_commands" default="/isaac_joint_commands"/>
+  <xacro:arg name="isaac_joint_states"   default="/isaac_joint_states"/>
+
+  <!-- ===================== includes ===================== -->
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+  <link name="world"/>
+
+  <!-- generate_ros2_control_tag:=false → we provide our own block below -->
+  <xacro:ur_robot
+    name="$(arg name)"
+    tf_prefix="$(arg tf_prefix)"
+    parent="world"
+    joint_limits_parameters_file="$(arg joint_limit_params)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    physical_parameters_file="$(arg physical_params)"
+    visual_parameters_file="$(arg visual_params)"
+    safety_limits="$(arg safety_limits)"
+    safety_pos_margin="$(arg safety_pos_margin)"
+    safety_k_position="$(arg safety_k_position)"
+    generate_ros2_control_tag="false"
+    >
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:ur_robot>
+
+  <!-- ===================== ros2_control: topic_based_ros2_control ===================== -->
+  <!-- Bridges Isaac Sim topics to ros2_control without the real UR driver -->
+  <ros2_control name="ur3_isaac" type="system">
+    <hardware>
+      <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+      <param name="joint_commands_topic">$(arg isaac_joint_commands)</param>
+      <param name="joint_states_topic">$(arg isaac_joint_states)</param>
+    </hardware>
+    <joint name="$(arg tf_prefix)shoulder_pan_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="$(arg tf_prefix)shoulder_lift_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">-1.5707</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="$(arg tf_prefix)elbow_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="$(arg tf_prefix)wrist_1_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="$(arg tf_prefix)wrist_2_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="$(arg tf_prefix)wrist_3_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <!-- ===================== SurfaceGripper TCP ===================== -->
+  <!-- No joints — controlled via /gripper_command topic (OmniGraph ScriptNode) -->
+  <link name="$(arg tf_prefix)suction_tcp"/>
+  <joint name="$(arg tf_prefix)suction_tcp_joint" type="fixed">
+    <parent link="$(arg tf_prefix)tool0"/>
+    <child  link="$(arg tf_prefix)suction_tcp"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+  </joint>
+
+</robot>

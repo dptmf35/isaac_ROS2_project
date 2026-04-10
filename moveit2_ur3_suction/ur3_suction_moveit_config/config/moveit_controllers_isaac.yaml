@@ -1,0 +1,31 @@
+controller_names:
+  - scaled_joint_trajectory_controller
+  - joint_trajectory_controller
+
+# SurfaceGripper는 MoveIt trajectory controller 불필요.
+# /gripper_command 토픽으로 직접 제어 (gripper_branch_node.py ScriptNode 참고)
+
+scaled_joint_trajectory_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: false
+  joints:
+    - shoulder_pan_joint
+    - shoulder_lift_joint
+    - elbow_joint
+    - wrist_1_joint
+    - wrist_2_joint
+    - wrist_3_joint
+
+# Isaac Sim uses topic_based_ros2_control → joint_trajectory_controller
+joint_trajectory_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: true
+  joints:
+    - shoulder_pan_joint
+    - shoulder_lift_joint
+    - elbow_joint
+    - wrist_1_joint
+    - wrist_2_joint
+    - wrist_3_joint
